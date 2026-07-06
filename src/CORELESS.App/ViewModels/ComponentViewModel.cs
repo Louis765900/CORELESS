@@ -54,6 +54,11 @@ public sealed class ComponentViewModel : ObservableObject
     public SensorViewModel? LoadHeadline { get; }
     public SensorViewModel? ClockHeadline { get; }
 
+    private const int SparkCap = 40;
+    public ObservableCollection<double> TempSpark { get; } = new();
+    public ObservableCollection<double> LoadSpark { get; } = new();
+    public ObservableCollection<double> ClockSpark { get; } = new();
+
     public bool HasTemp => TempHeadline is not null;
     public bool HasLoad => LoadHeadline is not null;
     public bool HasClock => ClockHeadline is not null;
@@ -63,6 +68,17 @@ public sealed class ComponentViewModel : ObservableObject
     {
         foreach (SensorViewModel s in _all) s.Refresh();
         foreach (ComponentViewModel c in SubComponents) c.Refresh();
+
+        PushSpark(TempSpark, TempHeadline?.Raw);
+        PushSpark(LoadSpark, LoadHeadline?.Raw);
+        PushSpark(ClockSpark, ClockHeadline?.Raw);
+    }
+
+    private static void PushSpark(ObservableCollection<double> spark, float? value)
+    {
+        if (value is not float v || float.IsNaN(v)) return;
+        spark.Add(v);
+        while (spark.Count > SparkCap) spark.RemoveAt(0);
     }
 
     private SensorViewModel? Pick(SensorType type, params string[] preferred)

@@ -62,38 +62,47 @@
             </Setter>
         </Style>
 
-        <!-- ===== sensor row ===== -->
+        <!-- ===== sensor row (4-col aligned) ===== -->
         <DataTemplate x:Key="SensorRowTemplate">
             <Grid Margin="0,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="96" />
+                    <ColumnDefinition Width="64" />
+                    <ColumnDefinition Width="64" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextMuted}"
                            FontSize="12.5" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock VerticalAlignment="Center" FontFamily="{StaticResource FontMono}">
-                        <Run Text="{Binding Value, Mode=OneWay}" Foreground="{StaticResource Text}" FontWeight="Bold" FontSize="13" />
-                        <Run Text="{Binding Unit, Mode=OneWay}" Foreground="{StaticResource TextMuted}" FontSize="11" />
-                    </TextBlock>
-                    <TextBlock Foreground="#55FFFFFF" FontFamily="{StaticResource FontMono}" FontSize="10.5"
-                               Margin="14,0,0,0" VerticalAlignment="Center">
-                        <Run Text="▼" /><Run Text="{Binding Min, Mode=OneWay}" />
-                        <Run Text="  ▲" /><Run Text="{Binding Max, Mode=OneWay}" />
-                    </TextBlock>
-                </StackPanel>
+                <TextBlock Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" FontFamily="{StaticResource FontMono}">
+                    <Run Text="{Binding Value, Mode=OneWay}" Foreground="{Binding ValueBrush}" FontWeight="Bold" FontSize="13" />
+                    <Run Text="{Binding Unit, Mode=OneWay}" Foreground="{StaticResource TextMuted}" FontSize="10" />
+                </TextBlock>
+                <TextBlock Grid.Column="2" Text="{Binding Min, Mode=OneWay}" HorizontalAlignment="Right"
+                           Foreground="#66FFFFFF" FontFamily="{StaticResource FontMono}" FontSize="11" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="3" Text="{Binding Max, Mode=OneWay}" HorizontalAlignment="Right"
+                           Foreground="#66FFFFFF" FontFamily="{StaticResource FontMono}" FontSize="11" VerticalAlignment="Center" />
             </Grid>
         </DataTemplate>
 
         <!-- ===== sensor group ===== -->
         <DataTemplate x:Key="GroupTemplate">
-            <Border Style="{StaticResource Panel}" Margin="0,0,0,14">
+            <Border Style="{StaticResource Card}" Width="470" Margin="0,0,16,16" VerticalAlignment="Top">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Width="4" Height="14" Background="{StaticResource Red}" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding Title}" FontFamily="{StaticResource FontHead}" FontSize="14"
-                                   FontWeight="Bold" Foreground="{StaticResource Pink}" Margin="8,0,0,0" VerticalAlignment="Center" />
-                    </StackPanel>
+                    <TextBlock Text="{Binding Title}" FontFamily="{StaticResource FontHead}" FontSize="15"
+                               FontWeight="Bold" Foreground="{StaticResource Pink}" Margin="0,0,0,10" />
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="96" />
+                            <ColumnDefinition Width="64" />
+                            <ColumnDefinition Width="64" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="SENSOR" Style="{StaticResource Label}" FontSize="9" />
+                        <TextBlock Grid.Column="1" Text="VALUE" Style="{StaticResource Label}" FontSize="9" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="2" Text="MIN" Style="{StaticResource Label}" FontSize="9" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="3" Text="MAX" Style="{StaticResource Label}" FontSize="9" HorizontalAlignment="Right" />
+                    </Grid>
+                    <Border Height="1" Background="{StaticResource BorderDim}" Margin="0,0,0,4" />
                     <ItemsControl ItemsSource="{Binding Sensors}" ItemTemplate="{StaticResource SensorRowTemplate}" />
                 </StackPanel>
             </Border>
@@ -104,7 +113,11 @@
             <StackPanel Margin="0,0,0,4">
                 <TextBlock Text="{Binding Name}" Foreground="{StaticResource Red}" FontFamily="{StaticResource FontHead}"
                            FontSize="13" FontWeight="Bold" Margin="2,4,0,10" />
-                <ItemsControl ItemsSource="{Binding Groups}" ItemTemplate="{StaticResource GroupTemplate}" />
+                <ItemsControl ItemsSource="{Binding Groups}" ItemTemplate="{StaticResource GroupTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </StackPanel>
         </DataTemplate>
 
@@ -137,30 +150,54 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- metric tiles -->
+                                <!-- metric tiles with sparklines -->
                                 <UniformGrid Rows="1" Margin="0,16,0,0">
                                     <Border Style="{StaticResource Tile}" Margin="0,0,8,0"
                                             Visibility="{Binding HasTemp, Converter={StaticResource BoolVis}}">
                                         <StackPanel>
                                             <TextBlock Text="TEMP °C" Style="{StaticResource Label}" FontSize="10" />
-                                            <TextBlock Text="{Binding TempHeadline.Value, Mode=OneWay}" Style="{StaticResource Metric}"
-                                                       FontSize="26" Margin="0,4,0,0" />
+                                            <Grid Margin="0,4,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding TempHeadline.Value, Mode=OneWay}" Style="{StaticResource Metric}"
+                                                           FontSize="26" VerticalAlignment="Center" />
+                                                <ctl:TrendChart Grid.Column="1" Height="26" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                                Values="{Binding TempSpark}" LineBrush="{StaticResource Red}" />
+                                            </Grid>
                                         </StackPanel>
                                     </Border>
                                     <Border Style="{StaticResource Tile}" Margin="0,0,8,0"
                                             Visibility="{Binding HasLoad, Converter={StaticResource BoolVis}}">
                                         <StackPanel>
                                             <TextBlock Text="LOAD %" Style="{StaticResource Label}" FontSize="10" />
-                                            <TextBlock Text="{Binding LoadHeadline.Value, Mode=OneWay}" Style="{StaticResource Metric}"
-                                                       FontSize="26" Margin="0,4,0,0" />
+                                            <Grid Margin="0,4,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding LoadHeadline.Value, Mode=OneWay}" Style="{StaticResource Metric}"
+                                                           FontSize="26" VerticalAlignment="Center" />
+                                                <ctl:TrendChart Grid.Column="1" Height="26" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                                Values="{Binding LoadSpark}" LineBrush="{StaticResource Red}" />
+                                            </Grid>
                                         </StackPanel>
                                     </Border>
                                     <Border Style="{StaticResource Tile}"
                                             Visibility="{Binding HasClock, Converter={StaticResource BoolVis}}">
                                         <StackPanel>
                                             <TextBlock Text="CLOCK MHz" Style="{StaticResource Label}" FontSize="10" />
-                                            <TextBlock Text="{Binding ClockHeadline.Value, Mode=OneWay}" Style="{StaticResource Metric}"
-                                                       FontSize="26" Margin="0,4,0,0" />
+                                            <Grid Margin="0,4,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding ClockHeadline.Value, Mode=OneWay}" Style="{StaticResource Metric}"
+                                                           FontSize="26" VerticalAlignment="Center" />
+                                                <ctl:TrendChart Grid.Column="1" Height="26" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                                Values="{Binding ClockSpark}" LineBrush="{StaticResource Red}" />
+                                            </Grid>
                                         </StackPanel>
                                     </Border>
                                 </UniformGrid>
@@ -237,7 +274,7 @@
                 BorderThickness="0,0,0,1" MouseDown="TitleBar_MouseDown">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                    <Border Width="10" Height="22" Background="{StaticResource Red}" Effect="{StaticResource RedGlowFx}" />
+                    <ctl:LogoMark Width="30" Height="30" MarkBrush="#FFFF1744" Effect="{StaticResource RedGlowFx}" />
                     <TextBlock Text="CORELESS" Margin="12,0,0,0" VerticalAlignment="Center"
                                FontFamily="{StaticResource FontHead}" FontSize="20" FontWeight="Bold"
                                Foreground="{StaticResource Pink}" />
@@ -319,10 +356,13 @@
                         </Grid.RowDefinitions>
 
                         <!-- section header -->
-                        <StackPanel Grid.Row="0" Margin="24,20,0,14">
-                            <TextBlock Text="MONITORING" FontFamily="{StaticResource FontHead}" FontSize="15"
-                                       FontWeight="Bold" Foreground="{StaticResource Pink}" />
-                            <TextBlock Text="SYSTEM STATUS" Style="{StaticResource Label}" FontSize="10" Margin="0,2,0,0" />
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="22,20,0,14">
+                            <ctl:LogoMark Width="34" Height="34" MarkBrush="#FFFF1744" />
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="MONITORING" FontFamily="{StaticResource FontHead}" FontSize="15"
+                                           FontWeight="Bold" Foreground="{StaticResource Pink}" />
+                                <TextBlock Text="SYSTEM STATUS" Style="{StaticResource Label}" FontSize="10" Margin="0,2,0,0" />
+                            </StackPanel>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1">
@@ -443,7 +483,11 @@
                                     Command="{Binding DataContext.ShowOverviewCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
                         </Grid>
 
-                        <ItemsControl ItemsSource="{Binding Groups}" ItemTemplate="{StaticResource GroupTemplate}" />
+                        <ItemsControl ItemsSource="{Binding Groups}" ItemTemplate="{StaticResource GroupTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
                         <ItemsControl ItemsSource="{Binding SubComponents}" ItemTemplate="{StaticResource SubComponentTemplate}" />
                     </StackPanel>
                 </ScrollViewer>
@@ -507,11 +551,31 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <Border Background="{StaticResource Red}" Padding="12,8" Margin="0,14,0,0"
+                                <Border Background="{StaticResource Red}" Padding="14,10" Margin="0,14,0,0"
                                         Effect="{StaticResource RedGlowFx}"
                                         Visibility="{Binding ThrottleWarning, Converter={StaticResource BoolVis}}">
-                                    <TextBlock Text="⚠ THROTTLING THERMIQUE DÉTECTÉ — la fréquence chute sous charge."
-                                               Foreground="White" FontFamily="{StaticResource FontLabel}" FontWeight="Bold" FontSize="12.5" />
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="⚠" Foreground="White" FontSize="18" VerticalAlignment="Center" />
+                                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Text="THERMAL THROTTLING DÉTECTÉ" Foreground="White"
+                                                           FontFamily="{StaticResource FontHead}" FontWeight="Bold" FontSize="14" />
+                                                <TextBlock Text="Température au-delà des limites sûres — la fréquence est réduite pour la stabilité."
+                                                           Foreground="#DDFFFFFF" FontSize="11.5" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button Content="ARRÊTER" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                Command="{Binding StopStressCommand}" Cursor="Hand"
+                                                FontFamily="{StaticResource FontHead}" FontWeight="Bold" FontSize="12" Foreground="{StaticResource Red}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="White" Padding="18,8">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </Grid>
                                 </Border>
 
                                 <Grid Margin="0,16,0,0">
@@ -560,7 +624,15 @@
                                                 <TextBlock Text="{Binding StressLoad}" Style="{StaticResource Metric}" FontSize="18" Margin="0,2,0,0" />
                                             </StackPanel>
                                         </UniformGrid>
-                                        <TextBlock Text="THERMAL DYNAMICS" Style="{StaticResource Label}" FontSize="10" Margin="0,14,0,0" />
+                                        <Grid Margin="0,14,0,0">
+                                            <TextBlock Text="THERMAL DYNAMICS" Style="{StaticResource Label}" FontSize="10" VerticalAlignment="Center" />
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                        Visibility="{Binding IsStressing, Converter={StaticResource BoolVis}}">
+                                                <Ellipse Width="7" Height="7" Fill="{StaticResource Red}" Effect="{StaticResource RedGlowFx}" VerticalAlignment="Center" />
+                                                <TextBlock Text="LIVE RECORDING" Foreground="{StaticResource Red}" FontFamily="{StaticResource FontLabel}"
+                                                           FontSize="9" FontWeight="Bold" Margin="6,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Grid>
                                         <Border Background="#FF0A0A0C" BorderBrush="{StaticResource BorderDim}" BorderThickness="1"
                                                 Height="120" Margin="0,6,0,0" Padding="4">
                                             <Grid>
@@ -649,7 +721,15 @@
                                                 <TextBlock Text="{Binding GpuLoad}" Style="{StaticResource Metric}" FontSize="18" Margin="0,2,0,0" />
                                             </StackPanel>
                                         </UniformGrid>
-                                        <TextBlock Text="THERMAL DYNAMICS" Style="{StaticResource Label}" FontSize="10" Margin="0,14,0,0" />
+                                        <Grid Margin="0,14,0,0">
+                                            <TextBlock Text="THERMAL DYNAMICS" Style="{StaticResource Label}" FontSize="10" VerticalAlignment="Center" />
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                        Visibility="{Binding IsGpuStressing, Converter={StaticResource BoolVis}}">
+                                                <Ellipse Width="7" Height="7" Fill="{StaticResource Red}" Effect="{StaticResource RedGlowFx}" VerticalAlignment="Center" />
+                                                <TextBlock Text="LIVE RECORDING" Foreground="{StaticResource Red}" FontFamily="{StaticResource FontLabel}"
+                                                           FontSize="9" FontWeight="Bold" Margin="6,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Grid>
                                         <Border Background="#FF0A0A0C" BorderBrush="{StaticResource BorderDim}" BorderThickness="1"
                                                 Height="120" Margin="0,6,0,0" Padding="4">
                                             <Grid>
