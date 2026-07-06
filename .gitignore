@@ -9,6 +9,10 @@ x86/
 *.suo
 .vs/
 
+## Release pipeline artifacts
+publish/
+dist/
+
 ## Rider / VS Code
 .idea/
 .vscode/

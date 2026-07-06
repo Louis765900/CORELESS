@@ -9,11 +9,16 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>CORELESS</AssemblyName>
     <RootNamespace>Coreless</RootNamespace>
-    <Platforms>x64</Platforms>
-    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64;arm64</Platforms>
+    <!-- Force x64 only for local (non-published) builds; a published RID governs its own arch -->
+    <PlatformTarget Condition="'$(RuntimeIdentifier)' == ''">x64</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>0.4.0</Version>
     <ApplicationIcon>coreless.ico</ApplicationIcon>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <!-- Trimming is NOT supported for WPF, so PublishTrimmed stays disabled. -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
