@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CORELESS — Analyse système Windows</title>
+<meta name="description" content="CORELESS — moniteur matériel Windows : capteurs en direct, benchmarks CPU/RAM/disque, stress tests CPU & GPU, export PDF/TXT. Alternative simple et graphique à HWiNFO / CPU-Z." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23FF1744' stroke-width='15' stroke-linecap='round'%3E%3Cpath d='M162.2 143.6 A76 76 0 1 1 162.2 56.4'/%3E%3Cpath d='M147.5 133.3 A58 58 0 1 1 147.5 66.7'/%3E%3Cpath d='M132.8 123 A40 40 0 1 1 132.8 77'/%3E%3C/g%3E%3Ccircle cx='150.2' cy='71' r='6' fill='none' stroke='%23FF1744' stroke-width='6'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0A0A0C; --surface:#141417; --surface2:#101013; --border:#1E1E22;
+    --border2:#2A2A2F; --text:#F2F3F5; --muted:#8A8F98;
+    --red:#E4002B; --red2:#FF1744; --pink:#FFB3AF; --green:#35D07F;
+    --head:'Rajdhani',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;
+    overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+  .head{font-family:var(--head);font-weight:700;letter-spacing:.03em;line-height:1.05}
+  .caps{font-family:var(--head);font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+
+  /* glow bg */
+  .glowbg{position:fixed;inset:0;z-index:-1;
+    background:
+      radial-gradient(600px 400px at 15% -5%, rgba(228,0,43,.16), transparent 60%),
+      radial-gradient(700px 500px at 100% 0%, rgba(255,23,68,.10), transparent 55%);}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+    background:rgba(10,10,12,.72);border-bottom:1px solid var(--border)}
+  .navrow{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand svg{filter:drop-shadow(0 0 8px rgba(255,23,68,.55))}
+  .brand b{font-family:var(--head);font-weight:700;font-size:22px;letter-spacing:.08em;color:var(--pink)}
+  .navlinks{display:flex;gap:28px;align-items:center}
+  .navlinks a{color:var(--muted);font-size:14px;font-weight:500;transition:color .2s}
+  .navlinks a:hover{color:var(--text)}
+  .btn{font-family:var(--head);font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    font-size:14px;display:inline-flex;align-items:center;gap:8px;padding:11px 22px;cursor:pointer;
+    border:0;transition:.2s}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-red:hover{background:var(--red2);box-shadow:0 0 22px rgba(255,23,68,.5)}
+  .btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+  .btn-ghost:hover{border-color:var(--red);box-shadow:0 0 18px rgba(255,23,68,.3)}
+
+  /* hero */
+  .hero{padding:96px 0 72px;text-align:center}
+  .hero .logo{margin:0 auto 26px;width:120px;height:120px;
+    filter:drop-shadow(0 0 26px rgba(255,23,68,.55))}
+  .hero h1{font-size:clamp(48px,9vw,104px);color:var(--text)}
+  .hero h1 .c{color:var(--pink)}
+  .tag{color:var(--muted);font-size:clamp(15px,2.2vw,20px);margin:14px auto 8px;max-width:640px}
+  .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:22px 0 34px}
+  .chip{font-family:var(--head);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);border:1px solid var(--border2);background:var(--surface2);padding:7px 14px}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .cta small{display:block;color:var(--muted);font-size:12px;margin-top:14px;letter-spacing:.04em}
+
+  /* preview mock */
+  .preview{margin:56px auto 0;max-width:960px;border:1px solid var(--border);
+    background:linear-gradient(160deg,#141C2B00,#0E0E10);position:relative}
+  .preview::before{content:"";position:absolute;inset:0;border-top:2px solid var(--red);pointer-events:none}
+  .pv-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border)}
+  .dot{width:11px;height:11px;border-radius:50%;background:var(--border2)}
+  .pv-body{display:grid;grid-template-columns:190px 1fr;min-height:300px}
+  .pv-side{border-right:1px solid var(--border);padding:16px 10px;background:var(--surface)}
+  .pv-side .lab{font-family:var(--head);font-size:11px;letter-spacing:.14em;color:var(--pink);
+    text-transform:uppercase;padding:6px 10px}
+  .pv-nav{display:flex;align-items:center;gap:10px;padding:9px 10px;color:var(--muted);font-size:13px}
+  .pv-nav.on{color:var(--pink);background:rgba(228,0,43,.14);border-left:3px solid var(--red)}
+  .pv-nav i{width:16px;height:12px;border:1px solid currentColor;display:inline-block}
+  .pv-main{padding:20px;text-align:left}
+  .pv-main h3{font-family:var(--head);font-size:26px;letter-spacing:.02em}
+  .pv-main .os{color:var(--muted);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  .pv-line{height:2px;background:linear-gradient(90deg,var(--red),var(--red2));margin:12px 0 16px}
+  .pv-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .pv-card{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--red);padding:14px}
+  .pv-card .name{font-family:var(--head);font-weight:600;font-size:15px}
+  .pv-card .sub{color:var(--muted);font-size:11px;margin-bottom:12px}
+  .pv-tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .pv-tile{background:var(--surface2);border:1px solid var(--border);padding:8px}
+  .pv-tile .t{font-family:var(--head);font-size:9px;letter-spacing:.1em;color:var(--muted)}
+  .pv-tile .v{font-family:var(--head);font-weight:700;font-size:20px}
+
+  /* sections */
+  section{padding:84px 0}
+  .shead{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .shead .mark{width:5px;height:26px;background:var(--red);box-shadow:0 0 12px rgba(255,23,68,.6)}
+  .shead h2{font-size:clamp(28px,4vw,40px)}
+  .slead{color:var(--muted);max-width:640px;margin-bottom:44px;font-size:16px}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .feat{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--red);
+    padding:26px 22px;transition:.25s}
+  .feat:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,.4),0 0 0 1px var(--border2)}
+  .feat .ic{width:44px;height:44px;border:1px solid var(--border2);background:var(--surface2);
+    display:flex;align-items:center;justify-content:center;color:var(--red2);margin-bottom:16px}
+  .feat h3{font-family:var(--head);font-weight:600;font-size:20px;letter-spacing:.02em;margin-bottom:8px}
+  .feat p{color:var(--muted);font-size:14.5px}
+
+  /* download */
+  .dl{border:1px solid var(--border);border-top:2px solid var(--red);background:var(--surface);
+    padding:48px;text-align:center}
+  .dl h2{font-size:clamp(30px,5vw,52px)}
+  .dl p{color:var(--muted);margin:12px auto 28px;max-width:560px}
+  .specs{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:26px;
+    color:var(--muted);font-size:13px}
+  .specs b{color:var(--text)}
+
+  footer{border-top:1px solid var(--border);padding:36px 0;color:var(--muted);font-size:13px}
+  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+
+  @media(max-width:820px){
+    .navlinks{display:none}
+    .grid{grid-template-columns:1fr}
+    .pv-body{grid-template-columns:1fr}.pv-side{display:none}
+    .pv-cards{grid-template-columns:1fr}
+    .dl{padding:32px 20px}
+  }
+</style>
+</head>
+<body>
+<div class="glowbg"></div>
+
+<!-- logo svg reused -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="cmark">
+    <g fill="none" stroke="#FF1744" stroke-width="15" stroke-linecap="round">
+      <path d="M162.2 143.6 A76 76 0 1 1 162.2 56.4"/>
+      <path d="M147.5 133.3 A58 58 0 1 1 147.5 66.7"/>
+      <path d="M132.8 123 A40 40 0 1 1 132.8 77"/>
+    </g>
+    <circle cx="150.2" cy="71" r="6" fill="none" stroke="#FF1744" stroke-width="6"/>
+  </g>
+</defs></svg>
+
+<nav>
+  <div class="wrap navrow">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 200 200"><use href="#cmark"/></svg>
+      <b>CORELESS</b>
+    </div>
+    <div class="navlinks">
+      <a href="#features">Fonctions</a>
+      <a href="#preview">Aperçu</a>
+      <a href="#download">Télécharger</a>
+      <a href="https://github.com/Louis765900/CORELESS" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <a class="btn btn-red" href="#download">Télécharger</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <svg class="logo" viewBox="0 0 200 200"><use href="#cmark"/></svg>
+    <h1 class="head"><span class="c">C</span>ORELESS</h1>
+    <p class="tag">Moniteur matériel Windows — capteurs en direct, benchmarks et stress tests dans une interface propre et lisible.</p>
+    <div class="chips">
+      <span class="chip">Capteurs live</span>
+      <span class="chip">Benchmarks</span>
+      <span class="chip">Stress CPU &amp; GPU</span>
+      <span class="chip">Export PDF / TXT</span>
+    </div>
+    <div class="cta">
+      <a class="btn btn-red" href="#download">▼ Télécharger pour Windows</a>
+      <a class="btn btn-ghost" href="https://github.com/Louis765900/CORELESS" target="_blank" rel="noopener">Voir sur GitHub</a>
+    </div>
+    <small>Windows 10 / 11 · x64 · gratuit &amp; open-source</small>
+
+    <!-- app preview mockup -->
+    <div class="preview" id="preview">
+      <div class="pv-bar">
+        <svg width="20" height="20" viewBox="0 0 200 200"><use href="#cmark"/></svg>
+        <span class="caps" style="font-size:12px;color:var(--pink)">CORELESS</span>
+        <span style="flex:1"></span>
+        <span class="dot"></span><span class="dot"></span><span class="dot" style="background:var(--red)"></span>
+      </div>
+      <div class="pv-body">
+        <aside class="pv-side">
+          <div class="lab">Monitoring</div>
+          <div class="pv-nav on"><i></i> Vue d'ensemble</div>
+          <div class="pv-nav"><i></i> Processeur</div>
+          <div class="pv-nav"><i></i> Carte graphique</div>
+          <div class="pv-nav"><i></i> Mémoire</div>
+          <div class="pv-nav"><i></i> Benchmarks</div>
+        </aside>
+        <div class="pv-main">
+          <div class="os">Windows 11 Pro</div>
+          <h3 class="head">CORELESS-X1</h3>
+          <div class="pv-line"></div>
+          <div class="pv-cards">
+            <div class="pv-card">
+              <div class="name">Intel Core i9</div>
+              <div class="sub">13900K @ 5.4 GHz</div>
+              <div class="pv-tiles">
+                <div class="pv-tile"><div class="t">TEMP °C</div><div class="v">42</div></div>
+                <div class="pv-tile"><div class="t">LOAD %</div><div class="v">15</div></div>
+                <div class="pv-tile"><div class="t">CLOCK</div><div class="v">5400</div></div>
+              </div>
+            </div>
+            <div class="pv-card">
+              <div class="name">NVIDIA RTX 4090</div>
+              <div class="sub">24GB GDDR6X</div>
+              <div class="pv-tiles">
+                <div class="pv-tile"><div class="t">TEMP °C</div><div class="v">38</div></div>
+                <div class="pv-tile"><div class="t">LOAD %</div><div class="v">2</div></div>
+                <div class="pv-tile"><div class="t">VRAM %</div><div class="v">18</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="shead"><span class="mark"></span><h2 class="head">Ce que fait CORELESS</h2></div>
+    <p class="slead">Tout HWiNFO/CPU-Z, en plus clair. Détection complète, mesures réelles, et un thème lisible d'un coup d'œil.</p>
+    <div class="grid">
+      <div class="feat"><div class="ic">▤</div><h3>Détection complète</h3><p>CPU, GPU, RAM, carte mère, disques, réseau, batterie — auto-détectés via pilote bas-niveau.</p></div>
+      <div class="feat"><div class="ic">〜</div><h3>Capteurs en direct</h3><p>Températures, charge, fréquences, tensions, ventilateurs — rafraîchis chaque seconde, avec min/max.</p></div>
+      <div class="feat"><div class="ic">▮▮</div><h3>Benchmarks</h3><p>CPU mono &amp; multi-cœur, bande passante mémoire, lecture/écriture disque + IOPS aléatoire 4K.</p></div>
+      <div class="feat"><div class="ic">◔</div><h3>Stress tests</h3><p>Charge maximale CPU &amp; GPU, jauges et courbes temps réel, détection du throttling thermique.</p></div>
+      <div class="feat"><div class="ic">⭳</div><h3>Export de rapport</h3><p>Rapport complet en TXT ou PDF graphique (composants, capteurs, scores) en un clic.</p></div>
+      <div class="feat"><div class="ic">◆</div><h3>Thème MSI noir/rouge</h3><p>Interface HUD sombre, angulaire, lisible. Sidebar structurée, cartes à accent rouge.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <div class="dl">
+      <svg width="72" height="72" viewBox="0 0 200 200" style="filter:drop-shadow(0 0 20px rgba(255,23,68,.5));margin-bottom:18px"><use href="#cmark"/></svg>
+      <h2 class="head">Télécharger CORELESS</h2>
+      <p>Installeur Windows ou exécutable portable. Aucune dépendance à installer — build self-contained.</p>
+      <div class="cta" style="justify-content:center">
+        <a class="btn btn-red" href="https://github.com/Louis765900/CORELESS/releases" target="_blank" rel="noopener">▼ Installeur Windows (.exe)</a>
+        <a class="btn btn-ghost" href="https://github.com/Louis765900/CORELESS" target="_blank" rel="noopener">Code source</a>
+      </div>
+      <div class="specs">
+        <span><b>OS</b> Windows 10 / 11</span>
+        <span><b>Arch</b> x64 (arm64 émulé)</span>
+        <span><b>Droits</b> administrateur (capteurs)</span>
+        <span><b>Licence</b> open-source</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 200 200"><use href="#cmark"/></svg>
+      <b style="font-size:16px">CORELESS</b>
+    </div>
+    <div>Analyse système Windows · <a href="https://github.com/Louis765900/CORELESS" target="_blank" rel="noopener" style="color:var(--pink)">github.com/Louis765900/CORELESS</a></div>
+    <div>© <span id="yr"></span> CORELESS</div>
+  </div>
+</footer>
+
+<script>document.getElementById('yr').textContent=new Date().getFullYear();</script>
+</body>
+</html>

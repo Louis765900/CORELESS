@@ -1,0 +1,13 @@
+# Deploy only the static landing site — exclude the .NET app + build output.
+src/
+bin/
+obj/
+publish/
+dist/
+installer/
+memory/
+*.ps1
+*.sln
+*.iss
+*.ico
+CORELESS Design System.pdf
