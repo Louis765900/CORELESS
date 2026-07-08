@@ -37,6 +37,12 @@ UninstallDisplayName={#MyAppName} {#MyAppVersion}
 OutputDir=..\dist
 OutputBaseFilename=CORELESS-Setup-v{#MyAppVersion}
 SetupIconFile=..\src\CORELESS.App\coreless.ico
+; Version info stamped on the Setup.exe (shown in file Properties > Details).
+VersionInfoVersion={#MyAppVersion}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoProductName={#MyAppName}
+VersionInfoDescription={#MyAppName} Setup
+VersionInfoCopyright=(C) 2025 {#MyAppPublisher}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern

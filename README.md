@@ -95,6 +95,36 @@ dotnet publish src/CORELESS.App/CORELESS.App.csproj -c Release -r win-x64 --self
 - **Élévation admin** : le `app.manifest` déclare `requireAdministrator` ; l'exe publié et l'installeur demandent donc l'UAC.
 - **arm64** : compilé pour complétude, mais le pilote capteurs (WinRing0) est x64 — sur Windows ARM, préférer le build x64 (émulation).
 
+## Signature de code (« Éditeur vérifié »)
+
+Non signé, l'UAC affiche **« Éditeur inconnu »** (barre jaune) et SmartScreen peut avertir. La ligne **« Éditeur vérifié »** (barre bleue, comme HWiNFO) vient **uniquement** d'une signature Authenticode avec un **certificat payant**.
+
+### Choisir un certificat
+
+| Type | Prix indicatif | Effet |
+|---|---|---|
+| **Certum Open Source Code Signing** | ~100–150 €/an | Éditeur vérifié. Le moins cher pour un particulier / projet OSS. |
+| **OV** (DigiCert, Sectigo, GlobalSign) | ~200–400 €/an | Éditeur vérifié. SmartScreen avertit jusqu'à réputation acquise. |
+| **EV** (token matériel) | ~300–600 €/an | Éditeur vérifié **+ SmartScreen OK immédiatement**. |
+
+Depuis 2023, la clé privée doit être sur un **token USB** ou un **HSM cloud** (plus de simple `.pfx`).
+
+### Signer
+
+Le pipeline est déjà prêt. Une fois le certificat importé (ou le token branché), récupère son empreinte :
+
+```powershell
+Get-ChildItem Cert:\CurrentUser\My | Format-List Subject, Thumbprint
+```
+
+Puis build + signature automatique de l'exe **et** de l'installeur :
+
+```powershell
+./build-release.ps1 -CertThumbprint <EMPREINTE_SHA1>
+```
+
+Nécessite `signtool.exe` (Windows SDK). Pour un HSM cloud (DigiCert KeyLocker, Certum cloud), passe `-SignToolPath` vers le wrapper du fournisseur. Les métadonnées éditeur (Société, Produit, Copyright) sont déjà dans le `.csproj` et le `.iss`.
+
 ## Release GitHub
 
 ```powershell

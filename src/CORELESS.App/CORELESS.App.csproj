@@ -14,7 +14,19 @@
     <PlatformTarget Condition="'$(RuntimeIdentifier)' == ''">x64</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>0.4.0</Version>
+    <FileVersion>0.4.0.0</FileVersion>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
     <ApplicationIcon>coreless.ico</ApplicationIcon>
+
+    <!-- Publisher / file metadata (shown in file Properties > Details).
+         NOTE: the "Verified publisher" line in the UAC prompt comes ONLY from an
+         Authenticode signature, not from these fields. See build-release.ps1 signing. -->
+    <Product>CORELESS</Product>
+    <AssemblyTitle>CORELESS</AssemblyTitle>
+    <Company>Louis Tétu</Company>
+    <Authors>Louis Tétu</Authors>
+    <Copyright>© 2025 Louis Tétu — CORELESS</Copyright>
+    <Description>CORELESS — analyse système Windows : capteurs, benchmarks et stress tests.</Description>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
     <!-- Trimming is NOT supported for WPF, so PublishTrimmed stays disabled. -->
     <PublishTrimmed>false</PublishTrimmed>
