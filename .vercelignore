@@ -11,3 +11,5 @@ memory/
 *.iss
 *.ico
 CORELESS Design System.pdf
+# binaries now hosted on GitHub Releases, not on Vercel
+download/
