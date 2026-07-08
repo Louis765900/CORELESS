@@ -12,6 +12,8 @@ x86/
 ## Release pipeline artifacts
 publish/
 dist/
+# installer binaries served by the Vercel site (uploaded via CLI, not committed)
+download/
 
 ## Rider / VS Code
 .idea/
@@ -20,3 +22,5 @@ dist/
 ## OS
 Thumbs.db
 Desktop.ini
+
+.vercel
