@@ -6,6 +6,7 @@ publish/
 dist/
 installer/
 memory/
+docs/
 *.ps1
 *.sln
 *.iss

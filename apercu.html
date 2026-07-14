@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CORELESS — Le moniteur matériel Windows tout-en-un</title>
-<meta name="description" content="CORELESS — moniteur matériel Windows : capteurs en direct, suite de benchmarks maison, stress tests CPU & GPU, export PDF/TXT. Alternative simple et graphique à HWiNFO / CPU-Z." />
-<meta property="og:title" content="CORELESS — Le moniteur matériel Windows tout-en-un" />
-<meta property="og:description" content="Capteurs en direct, suite de benchmarks maison, stress tests CPU & GPU, export PDF/TXT — dans une seule app." />
+<title>Aperçu — CORELESS</title>
+<meta name="description" content="Aperçu de l'interface CORELESS : télémétrie système en direct, jauges thermiques, courbes temps réel, résultats de la suite de benchmarks." />
+<meta property="og:title" content="Aperçu — CORELESS" />
+<meta property="og:description" content="Télémétrie en direct, jauges thermiques, résultats de benchmarks — l'interface CORELESS en image." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://coreless.vercel.app" />
+<meta property="og:url" content="https://coreless.vercel.app/apercu" />
 <meta name="theme-color" content="#0A0A0C" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23FF1744' stroke-width='15' stroke-linecap='round'%3E%3Cpath d='M162.2 143.6 A76 76 0 1 1 162.2 56.4'/%3E%3Cpath d='M147.5 133.3 A58 58 0 1 1 147.5 66.7'/%3E%3Cpath d='M132.8 123 A40 40 0 1 1 132.8 77'/%3E%3C/g%3E%3Ccircle cx='150.2' cy='71' r='6' fill='none' stroke='%23FF1744' stroke-width='6'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,55 +46,20 @@
   </div>
 </nav>
 
-<!-- HERO -->
-<header class="hero">
+<!-- PAGE INTRO -->
+<header class="pageintro">
   <div class="gridbg"></div>
-  <div class="halo"></div>
   <div class="inner">
-    <svg class="logo" viewBox="0 0 200 200"><use href="#cmark"/></svg>
-    <div>
-      <h1>CORELESS</h1>
-      <p class="tag" style="margin-top:16px">Le moniteur matériel Windows tout-en-un — capteurs, benchmarks et stress tests, réunis dans une seule app.</p>
-    </div>
-    <div class="chips">
-      <span class="chip"><i></i> Capteurs live</span>
-      <span class="chip"><i></i> Suite de benchmarks</span>
-      <span class="chip"><i></i> Stress CPU &amp; GPU</span>
-      <span class="chip"><i></i> Export PDF/TXT</span>
-    </div>
-    <div class="cta">
-      <a class="btn btn-red" href="https://github.com/Louis765900/CORELESS/releases/download/v0.5.0/CORELESS-Setup-v0.5.0.exe"><span class="material-symbols-outlined">terminal</span> Télécharger pour Windows</a>
-      <a class="btn btn-ghost" href="https://github.com/Louis765900/CORELESS" target="_blank" rel="noopener"><span class="material-symbols-outlined">code</span> GitHub</a>
-    </div>
-    <div class="hint">Windows 10 / 11 · x64 · gratuit &amp; open-source</div>
+    <div class="eyebrow"><i></i> Aperçu</div>
+    <h1>L'interface, <span class="accent">en direct</span></h1>
+    <p>Télémétrie système, jauges thermiques, courbes temps réel et résultats de benchmarks — voici ce que tu verras au lancement.</p>
   </div>
 </header>
 
-<!-- PITCH -->
+<!-- TELEMETRY -->
 <section>
   <div class="wrap">
-    <div class="sh reveal"><h2>Pourquoi <span class="accent">CORELESS</span></h2><div class="bar"></div>
-      <p>La plupart des outils de monitoring font une seule chose : soit les capteurs, soit un benchmark, soit le disque. Pour avoir une vue complète il faut installer cinq logiciels différents. CORELESS regroupe tout ça — une seule app, un seul thème, une interface pensée pour être lisible.</p>
-    </div>
-    <div class="grid3">
-      <div class="feat reveal"><div class="ic"><span class="material-symbols-outlined">sensors</span></div>
-        <h3>Capteurs en direct</h3><p>Températures, charge, fréquences, tensions — rafraîchis en continu.</p></div>
-      <div class="feat reveal" style="transition-delay:.08s"><div class="ic"><span class="material-symbols-outlined">speed</span></div>
-        <h3>Suite de benchmarks</h3><p>Rendu 3D, calcul Pi, compression, mémoire, disque — moteurs maison, indice global.</p></div>
-      <div class="feat reveal" style="transition-delay:.16s"><div class="ic"><span class="material-symbols-outlined">local_fire_department</span></div>
-        <h3>Stress tests</h3><p>Charge CPU &amp; GPU avec détection du throttling thermique en temps réel.</p></div>
-    </div>
-    <div style="text-align:center;margin-top:36px" class="reveal">
-      <a class="btn btn-outline" href="/fonctionnalites">Voir toutes les fonctionnalités <span class="material-symbols-outlined" style="font-size:16px">arrow_forward</span></a>
-    </div>
-  </div>
-</section>
-
-<!-- MINI PREVIEW STRIP -->
-<section class="band">
-  <div class="wrap">
-    <div class="sh reveal"><h2>Un <span class="accent">aperçu</span></h2>
-      <p>Capteurs, jauges, graphiques temps réel — tout pensé pour être lu en un coup d'œil.</p></div>
+    <div class="sh reveal"><h2>Télémétrie <span class="accent">système</span></h2><div class="bar"></div></div>
     <div class="appwin reveal">
       <div class="tbar">
         <div class="t"><span class="material-symbols-outlined">memory</span>
@@ -138,29 +103,92 @@
         </div>
       </div>
     </div>
-    <div style="text-align:center;margin-top:36px" class="reveal">
-      <a class="btn btn-outline" href="/apercu">Voir l'aperçu complet <span class="material-symbols-outlined" style="font-size:16px">arrow_forward</span></a>
+  </div>
+</section>
+
+<!-- THERMAL SHOWCASE -->
+<section class="band">
+  <div class="wrap show">
+    <div class="left reveal">
+      <div class="live"><i></i><span>LIVE RECORDING</span></div>
+      <h2 class="head" style="font-size:32px;margin-top:18px">Dynamique<br><span style="color:var(--muted)">thermique</span></h2>
+      <div class="gauges">
+        <div class="gauge">
+          <div class="ring">
+            <svg width="130" height="130" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="44" fill="none" stroke="#1E1E22" stroke-width="8"/>
+              <circle cx="50" cy="50" r="44" fill="none" stroke="#E4002B" stroke-width="8" stroke-linecap="round"
+                      stroke-dasharray="276" stroke-dashoffset="49" style="filter:drop-shadow(0 0 6px rgba(228,0,43,.6))"/>
+            </svg>
+            <div class="val">82<small>°C</small></div>
+          </div>
+          <div class="lab">CPU Package</div>
+        </div>
+        <div class="gauge">
+          <div class="ring">
+            <svg width="130" height="130" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="44" fill="none" stroke="#1E1E22" stroke-width="8"/>
+              <circle cx="50" cy="50" r="44" fill="none" stroke="#E4002B" stroke-width="8" stroke-linecap="round"
+                      stroke-dasharray="276" stroke-dashoffset="80" style="filter:drop-shadow(0 0 6px rgba(228,0,43,.6))"/>
+            </svg>
+            <div class="val">76<small>°C</small></div>
+          </div>
+          <div class="lab">GPU Core</div>
+        </div>
+      </div>
+    </div>
+    <div class="chart reveal">
+      <div class="ch">
+        <span class="lbl" style="color:var(--dim)">HISTORY_LOG · 60s</span>
+        <div class="legend">
+          <span><i style="background:var(--red)"></i> TEMP (°C)</span>
+          <span><i style="background:#39393c"></i> LOAD (%)</span>
+        </div>
+      </div>
+      <div class="plot">
+        <div class="glines"><div></div><div></div><div></div><div></div><div></div></div>
+        <svg preserveAspectRatio="none" viewBox="0 0 1000 100">
+          <polyline fill="none" points="0,90 100,85 200,88 300,40 400,25 500,20 600,16 700,18 800,14 900,12 1000,9" stroke="#39393c" stroke-width="2"/>
+          <polyline fill="none" points="0,82 100,74 200,66 300,52 400,36 500,30 600,26 700,27 800,22 900,18 1000,15" stroke="#E4002B" stroke-width="3" style="filter:drop-shadow(0 3px 5px rgba(228,0,43,.4))"/>
+        </svg>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- DOWNLOAD TEASER -->
-<section class="dlsec">
-  <div class="glow"></div>
-  <div class="wrap" style="display:flex;justify-content:center">
-    <div class="dl chamfer reveal">
-      <div class="top"></div>
-      <svg class="logo" viewBox="0 0 200 200"><use href="#cmark"/></svg>
-      <h2>Prêt à <span class="accent">essayer</span> ?</h2>
-      <p>Installeur Windows ou exécutable portable. Build self-contained — aucune dépendance à installer.</p>
-      <div class="cta">
-        <a class="btn btn-red" href="https://github.com/Louis765900/CORELESS/releases/download/v0.5.0/CORELESS-Setup-v0.5.0.exe"><span class="material-symbols-outlined">download</span> Installeur Windows (.exe)</a>
-        <a class="btn btn-outline" href="/telecharger"><span class="material-symbols-outlined">list</span> Toutes les options</a>
+<!-- BENCHMARK RESULTS MOCK -->
+<section>
+  <div class="wrap">
+    <div class="sh reveal"><h2>Résultats de <span class="accent">benchmarks</span></h2>
+      <p>Chaque test alimente un indice global — comparable d'une machine à l'autre, sur la même version de CORELESS.</p></div>
+    <div class="results reveal">
+      <div class="rescard hi">
+        <div class="rn">★ Indice CORELESS (global)<small>Score pondéré sur tous les modules</small></div>
+        <div class="rv">1 024 <small>pts</small></div>
       </div>
-      <div class="meta">VERSION 0.5.0 · WINDOWS 10 / 11 · x64 · ~70 Mo · ADMIN REQUIS · OPEN-SOURCE</div>
+      <div class="rescard">
+        <div class="rn">Rendu 3D (CPU)<small>Ray tracer — débit multi-cœur</small></div>
+        <div class="rv">40.2 <small>Mpx/s</small></div>
+      </div>
+      <div class="rescard">
+        <div class="rn">Calcul Pi<small>Précision arbitraire — Chudnovsky</small></div>
+        <div class="rv">17 788 <small>chiffres/s</small></div>
+      </div>
+      <div class="rescard">
+        <div class="rn">Mémoire — suite complète<small>Bande passante (copie)</small></div>
+        <div class="rv">9.6 <small>Go/s</small></div>
+      </div>
+      <div class="rescard">
+        <div class="rn">Stockage — suite CDM<small>SEQ1M Q8T1 lecture</small></div>
+        <div class="rv">4 419 <small>Mo/s</small></div>
+      </div>
     </div>
   </div>
 </section>
+
+<div style="text-align:center;padding:0 24px 80px" class="reveal">
+  <a class="btn btn-red" href="/telecharger"><span class="material-symbols-outlined">download</span> Télécharger CORELESS</a>
+</div>
 
 <!-- FOOTER -->
 <footer>

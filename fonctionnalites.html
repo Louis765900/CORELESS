@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fonctionnalités — CORELESS</title>
+<meta name="description" content="Détection matérielle complète, capteurs en direct, suite de benchmarks maison (rendu 3D, Pi, compression, mémoire, disque), stress tests CPU & GPU, export PDF/TXT." />
+<meta property="og:title" content="Fonctionnalités — CORELESS" />
+<meta property="og:description" content="Détection matérielle, capteurs live, suite de benchmarks maison, stress tests, export de rapport." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://coreless.vercel.app/fonctionnalites" />
+<meta name="theme-color" content="#0A0A0C" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23FF1744' stroke-width='15' stroke-linecap='round'%3E%3Cpath d='M162.2 143.6 A76 76 0 1 1 162.2 56.4'/%3E%3Cpath d='M147.5 133.3 A58 58 0 1 1 147.5 66.7'/%3E%3Cpath d='M132.8 123 A40 40 0 1 1 132.8 77'/%3E%3C/g%3E%3Ccircle cx='150.2' cy='71' r='6' fill='none' stroke='%23FF1744' stroke-width='6'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/site.css" />
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="cmark">
+    <g fill="none" stroke="#FF1744" stroke-width="15" stroke-linecap="round">
+      <path d="M162.2 143.6 A76 76 0 1 1 162.2 56.4"/>
+      <path d="M147.5 133.3 A58 58 0 1 1 147.5 66.7"/>
+      <path d="M132.8 123 A40 40 0 1 1 132.8 77"/>
+    </g>
+    <circle cx="150.2" cy="71" r="6" fill="none" stroke="#FF1744" stroke-width="6"/>
+  </g>
+</defs></svg>
+
+<!-- NAV -->
+<nav>
+  <div class="wrap navrow">
+    <a class="brand" href="/">
+      <svg width="30" height="30" viewBox="0 0 200 200"><use href="#cmark"/></svg>
+      <b>CORELESS</b>
+    </a>
+    <div class="navlinks">
+      <a href="/fonctionnalites" data-path="/fonctionnalites">Fonctions</a>
+      <a href="/apercu" data-path="/apercu">Aperçu</a>
+      <a href="/telecharger" data-path="/telecharger">Télécharger</a>
+      <a href="https://github.com/Louis765900/CORELESS" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <a class="btn btn-red nav-cta" href="/telecharger"><span class="material-symbols-outlined" style="font-size:16px">download</span> Télécharger</a>
+  </div>
+</nav>
+
+<!-- PAGE INTRO -->
+<header class="pageintro">
+  <div class="gridbg"></div>
+  <div class="inner">
+    <div class="eyebrow"><i></i> Fonctionnalités</div>
+    <h1>Tout ce qu'il faut pour <span class="accent">connaître sa machine</span></h1>
+    <p>Cinq logiciels réunis en un : capteurs, benchmarks, stress tests et rapports — le tout dans une interface pensée pour être lue en un coup d'œil.</p>
+  </div>
+</header>
+
+<!-- FEATURES GRID -->
+<section>
+  <div class="wrap">
+    <div class="grid3">
+      <div class="feat reveal"><div class="ic"><span class="material-symbols-outlined">radar</span></div>
+        <h3>Détection complète</h3><p>CPU, GPU, RAM, carte mère, disques, réseau, batterie — auto-détectés via pilote bas niveau (Ring0).</p></div>
+      <div class="feat reveal" style="transition-delay:.05s"><div class="ic"><span class="material-symbols-outlined">sensors</span></div>
+        <h3>Capteurs en direct</h3><p>Températures, charge, fréquences, tensions, ventilateurs — rafraîchis en continu, avec min/max.</p></div>
+      <div class="feat reveal" style="transition-delay:.1s"><div class="ic"><span class="material-symbols-outlined">speed</span></div>
+        <h3>Suite de benchmarks</h3><p>Rendu 3D CPU, calcul Pi, compression, mémoire &amp; grille disque SEQ/RND — moteurs maison, indice global unique.</p></div>
+      <div class="feat reveal" style="transition-delay:.15s"><div class="ic"><span class="material-symbols-outlined">local_fire_department</span></div>
+        <h3>Stress tests</h3><p>Charge maximale CPU &amp; GPU avec jauges et courbes temps réel, détection du throttling thermique.</p></div>
+      <div class="feat reveal" style="transition-delay:.2s"><div class="ic"><span class="material-symbols-outlined">picture_as_pdf</span></div>
+        <h3>Export de rapport</h3><p>Rapport complet en TXT ou PDF graphique (composants, capteurs, scores) en un clic.</p></div>
+      <div class="feat reveal" style="transition-delay:.25s"><div class="ic"><span class="material-symbols-outlined">palette</span></div>
+        <h3>Thème MSI noir/rouge</h3><p>Interface HUD sombre, angulaire, contrastée. Sidebar structurée, cartes à accent rouge.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- BENCHMARK SUITE DETAIL -->
+<section class="band">
+  <div class="wrap">
+    <div class="sh reveal"><h2>La suite de <span class="accent">benchmarks</span></h2>
+      <p>CORELESS n'embarque aucun logiciel tiers (propriétaires, fermés). Chaque module est un moteur maison, écrit pour mesurer la même chose que les références du marché.</p></div>
+    <div style="overflow-x:auto" class="reveal">
+      <table class="btable">
+        <thead>
+          <tr><th>Module CORELESS</th><th>Dans l'esprit de</th><th>Ce qui est mesuré</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mod">Rendu 3D (CPU)</td><td class="insp">Cinebench</td><td>Ray tracer managé — débit mono et multi-cœur (Mpx/s)</td></tr>
+          <tr><td class="mod">Calcul Pi</td><td class="insp">y-cruncher</td><td>Précision arbitraire, Chudnovsky + binary splitting</td></tr>
+          <tr><td class="mod">Compression</td><td class="insp">7-Zip</td><td>Deflate multi-thread — débit + taux de compression</td></tr>
+          <tr><td class="mod">Mémoire</td><td class="insp">AIDA64</td><td>Bande passante lecture/écriture/copie + latence + test d'intégrité</td></tr>
+          <tr><td class="mod">Stockage</td><td class="insp">CrystalDiskMark</td><td>Grille SEQ1M / RND4K en Q1 et Q32 (Mo/s + IOPS)</td></tr>
+          <tr><td class="mod">Indice CORELESS</td><td class="insp">PCMark / Novabench</td><td>Score global unique, pondéré sur tous les modules</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note reveal">Le test mémoire vérifie la RAM allouée en espace utilisateur (pas la RAM totale comme MemTest86, qui exige un boot hors OS). Les débits disque sont influencés par le cache du système.</div>
+  </div>
+</section>
+
+<div style="text-align:center;padding:60px 24px" class="reveal">
+  <a class="btn btn-red" href="/telecharger"><span class="material-symbols-outlined">download</span> Télécharger CORELESS</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="/">
+      <svg width="26" height="26" viewBox="0 0 200 200"><use href="#cmark"/></svg>
+      <b style="font-size:18px">CORELESS</b>
+    </a>
+    <div class="links">
+      <a href="/fonctionnalites">Fonctions</a>
+      <a href="/apercu">Aperçu</a>
+      <a href="/telecharger">Télécharger</a>
+      <a href="https://github.com/Louis765900/CORELESS" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/Louis765900/CORELESS/releases" target="_blank" rel="noopener">Releases</a>
+    </div>
+    <div class="cr">© <span id="yr"></span> CORELESS · Analyse système Windows</div>
+  </div>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+</body>
+</html>
