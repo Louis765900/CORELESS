@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Coreless.Models;
 using Coreless.Mvvm;
 using Coreless.Services.Benchmarks;
 
@@ -29,7 +30,12 @@ public sealed class BenchmarkViewModel : ObservableObject
         RunCpuCommand = new RelayCommand(() => _ = RunOne(CpuBenchmark.RunAsync, "Processeur"), () => CanRun);
         RunMemoryCommand = new RelayCommand(() => _ = RunOne(MemoryBenchmark.RunAsync, "Mémoire"), () => CanRun);
         RunDiskCommand = new RelayCommand(() => _ = RunOne(DiskBenchmark.RunAsync, "Stockage"), () => CanRun);
-        RunAllCommand = new RelayCommand(() => _ = RunAll(), () => CanRun);
+        RunRenderCommand = new RelayCommand(() => _ = RunOne(RenderBenchmark.RunAsync, "Rendu 3D"), () => CanRun);
+        RunPiCommand = new RelayCommand(() => _ = RunOne(PiBenchmark.RunAsync, "Calcul Pi"), () => CanRun);
+        RunCompressionCommand = new RelayCommand(() => _ = RunOne(CompressionBenchmark.RunAsync, "Compression"), () => CanRun);
+        RunRamSuiteCommand = new RelayCommand(() => _ = RunOne(RamSuiteBenchmark.RunAsync, "Mémoire (suite)"), () => CanRun);
+        RunDiskSuiteCommand = new RelayCommand(() => _ = RunOne(DiskSuiteBenchmark.RunAsync, "Stockage (suite)"), () => CanRun);
+        RunAllCommand = new RelayCommand(() => _ = RunSuite(), () => CanRun);
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => IsRunning);
         StartStressCommand = new RelayCommand(StartStress, () => !IsStressing && !IsRunning);
         StopStressCommand = new RelayCommand(StopStress, () => IsStressing);
@@ -52,6 +58,11 @@ public sealed class BenchmarkViewModel : ObservableObject
     public ICommand RunCpuCommand { get; }
     public ICommand RunMemoryCommand { get; }
     public ICommand RunDiskCommand { get; }
+    public ICommand RunRenderCommand { get; }
+    public ICommand RunPiCommand { get; }
+    public ICommand RunCompressionCommand { get; }
+    public ICommand RunRamSuiteCommand { get; }
+    public ICommand RunDiskSuiteCommand { get; }
     public ICommand RunAllCommand { get; }
     public ICommand CancelCommand { get; }
     public ICommand StartStressCommand { get; }
@@ -139,9 +150,11 @@ public sealed class BenchmarkViewModel : ObservableObject
     private double _gpuTempValue;
     public double GpuTempValue { get => _gpuTempValue; private set => SetProperty(ref _gpuTempValue, value); }
 
-    private async Task RunOne(Func<IProgress<double>, CancellationToken, Task<BenchmarkOutcome>> bench, string name)
+    private bool _suiteCanceled;
+
+    private async Task<BenchmarkOutcome?> RunOne(Func<IProgress<double>, CancellationToken, Task<BenchmarkOutcome>> bench, string name)
     {
-        if (!CanRun) return;
+        if (!CanRun) return null;
         _cts = new CancellationTokenSource();
         IsRunning = true;
         CurrentTask = name;
@@ -153,14 +166,18 @@ public sealed class BenchmarkViewModel : ObservableObject
             BenchmarkOutcome outcome = await bench(progress, _cts.Token);
             Results.Insert(0, outcome);
             Status = $"{name} terminé — {outcome.ScoreValue} {outcome.ScoreUnit}";
+            return outcome;
         }
         catch (OperationCanceledException)
         {
             Status = $"{name} annulé.";
+            _suiteCanceled = true;
+            return null;
         }
         catch (Exception ex)
         {
             Status = $"Erreur {name}: {ex.Message}";
+            return null;
         }
         finally
         {
@@ -171,11 +188,70 @@ public sealed class BenchmarkViewModel : ObservableObject
         }
     }
 
-    private async Task RunAll()
+    // Full benchmark suite: CPU (render/pi/compression) + RAM suite + disk suite,
+    // then a weighted "Indice CORELESS" composite (PCMark/Novabench-style single number).
+    private async Task RunSuite()
     {
-        await RunOne(CpuBenchmark.RunAsync, "Processeur");
-        if (_cts is null) await RunOne(MemoryBenchmark.RunAsync, "Mémoire");
-        await RunOne(DiskBenchmark.RunAsync, "Stockage");
+        _suiteCanceled = false;
+        var outcomes = new List<BenchmarkOutcome>();
+
+        (Func<IProgress<double>, CancellationToken, Task<BenchmarkOutcome>> fn, string name)[] steps =
+        {
+            (RenderBenchmark.RunAsync, "Rendu 3D"),
+            (PiBenchmark.RunAsync, "Calcul Pi"),
+            (CompressionBenchmark.RunAsync, "Compression"),
+            (RamSuiteBenchmark.RunAsync, "Mémoire (suite)"),
+            (DiskSuiteBenchmark.RunAsync, "Stockage (suite)"),
+        };
+
+        foreach ((var fn, string name) in steps)
+        {
+            BenchmarkOutcome? o = await RunOne(fn, name);
+            if (_suiteCanceled) { Status = "Suite annulée."; return; }
+            if (o is not null) outcomes.Add(o);
+        }
+
+        BenchmarkOutcome composite = BuildComposite(outcomes);
+        Results.Insert(0, composite);
+        Status = $"Suite terminée — Indice CORELESS {composite.ScoreValue}";
+    }
+
+    // Normalize each result against a rough mid-range-desktop reference (= index 1000),
+    // then average the available components. Reference values are arbitrary but stable,
+    // so scores are comparable between machines running the same CORELESS build.
+    private static BenchmarkOutcome BuildComposite(List<BenchmarkOutcome> outcomes)
+    {
+        (string label, string match, double reference)[] refs =
+        {
+            ("Rendu 3D (CPU)", "Rendu 3D",    30.0),   // Mpx/s
+            ("Calcul Pi",      "Pi",          18_000), // chiffres/s
+            ("Compression",    "Compression", 250),    // Mo/s
+            ("Mémoire",        "Mémoire",     12.0),    // Go/s copie
+            ("Stockage",       "Stockage",    3500),   // Mo/s SEQ
+        };
+
+        var parts = new List<InfoItem>();
+        double sum = 0; int n = 0;
+        foreach ((string label, string match, double reference) in refs)
+        {
+            BenchmarkOutcome? o = outcomes.FirstOrDefault(x => x.Title.Contains(match) && x.Score > 0);
+            if (o is null) continue;
+            double idx = 1000.0 * o.Score / reference;
+            sum += idx; n++;
+            parts.Add(new InfoItem(label, $"{Math.Round(idx):N0} pts"));
+        }
+
+        double global = n > 0 ? sum / n : 0;
+        return new BenchmarkOutcome
+        {
+            Title = "★ Indice CORELESS (global)",
+            ScoreLabel = "Score global",
+            ScoreValue = Math.Round(global).ToString("N0"),
+            ScoreUnit = "pts",
+            Score = global,
+            Category = BenchCategory.Composite,
+            Details = parts.Count > 0 ? parts : new List<InfoItem> { new("Aucun résultat", "—") }
+        };
     }
 
     private void StartStress()

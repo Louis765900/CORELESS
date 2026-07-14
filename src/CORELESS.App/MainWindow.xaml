@@ -507,16 +507,8 @@
                         <Border Style="{StaticResource Card}" Margin="0,18,0,0">
                             <StackPanel>
                                 <Grid>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Content="▶ TOUT TESTER" Style="{StaticResource PrimaryButton}"
-                                                Command="{Binding RunAllCommand}" Margin="0,0,10,0" />
-                                        <Button Content="CPU" Style="{StaticResource GhostButton}" Width="86"
-                                                Margin="0,0,8,0" Command="{Binding RunCpuCommand}" />
-                                        <Button Content="MÉMOIRE" Style="{StaticResource GhostButton}" Width="100"
-                                                Margin="0,0,8,0" Command="{Binding RunMemoryCommand}" />
-                                        <Button Content="DISQUE" Style="{StaticResource GhostButton}" Width="94"
-                                                Command="{Binding RunDiskCommand}" />
-                                    </StackPanel>
+                                    <Button Content="▶ TOUT TESTER" Style="{StaticResource PrimaryButton}"
+                                            HorizontalAlignment="Left" Command="{Binding RunAllCommand}" />
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                         <Button Content="ANNULER" Style="{StaticResource GhostButton}" Width="96" Margin="0,0,10,0"
                                                 Command="{Binding CancelCommand}"
@@ -526,7 +518,31 @@
                                                    Foreground="{StaticResource Pink}" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Grid>
-                                <ProgressBar Style="{StaticResource Bar}" Value="{Binding Progress, Mode=OneWay}" Margin="0,14,0,0" />
+
+                                <!-- individual test launchers (our own engines, inspired by the classics) -->
+                                <TextBlock Text="TESTS INDIVIDUELS" Style="{StaticResource Label}" FontSize="10" Margin="0,16,0,0" />
+                                <WrapPanel Margin="0,8,0,0">
+                                    <WrapPanel.Resources>
+                                        <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                            <Setter Property="Margin" Value="0,0,8,8" />
+                                            <Setter Property="MinWidth" Value="132" />
+                                        </Style>
+                                    </WrapPanel.Resources>
+                                    <Button Content="RENDU 3D" ToolTip="Ray tracer CPU (type Cinebench)"
+                                            Command="{Binding RunRenderCommand}" />
+                                    <Button Content="CALCUL PI" ToolTip="Précision arbitraire (type y-cruncher)"
+                                            Command="{Binding RunPiCommand}" />
+                                    <Button Content="COMPRESSION" ToolTip="Deflate multi-thread (type 7-Zip)"
+                                            Command="{Binding RunCompressionCommand}" />
+                                    <Button Content="CPU DÉBIT" ToolTip="Débit ALU/FPU mono + multi-cœur"
+                                            Command="{Binding RunCpuCommand}" />
+                                    <Button Content="MÉMOIRE" ToolTip="Bande passante + latence + intégrité (type AIDA64)"
+                                            Command="{Binding RunRamSuiteCommand}" />
+                                    <Button Content="DISQUE" ToolTip="Grille SEQ/RND Q1-Q32 (type CrystalDiskMark)"
+                                            Command="{Binding RunDiskSuiteCommand}" />
+                                </WrapPanel>
+
+                                <ProgressBar Style="{StaticResource Bar}" Value="{Binding Progress, Mode=OneWay}" Margin="0,10,0,0" />
                                 <TextBlock Text="{Binding Status}" Style="{StaticResource Label}" FontWeight="Normal"
                                            Margin="0,10,0,0" />
                             </StackPanel>

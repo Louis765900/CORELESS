@@ -13,9 +13,9 @@
     <!-- Force x64 only for local (non-published) builds; a published RID governs its own arch -->
     <PlatformTarget Condition="'$(RuntimeIdentifier)' == ''">x64</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>0.4.0</Version>
-    <FileVersion>0.4.0.0</FileVersion>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
+    <Version>0.5.0</Version>
+    <FileVersion>0.5.0.0</FileVersion>
+    <AssemblyVersion>0.5.0.0</AssemblyVersion>
     <ApplicationIcon>coreless.ico</ApplicationIcon>
 
     <!-- Publisher / file metadata (shown in file Properties > Details).
