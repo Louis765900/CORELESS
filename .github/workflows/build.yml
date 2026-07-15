@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    # WPF requires the Windows Desktop workload; there is no Linux/macOS runner for this app.
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore CORELESS.sln
+
+      - name: Build
+        run: dotnet build CORELESS.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Tests/CORELESS.Tests/CORELESS.Tests.csproj --configuration Release --no-restore --verbosity normal
