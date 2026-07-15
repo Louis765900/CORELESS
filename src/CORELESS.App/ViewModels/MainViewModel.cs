@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Coreless.Models;
@@ -107,6 +109,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private string _machineName = Environment.MachineName;
     public string MachineName { get => _machineName; private set => SetProperty(ref _machineName, value); }
+
+    public string AppVersion { get; } =
+        Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
+
+    public bool IsRunningAsAdmin { get; } =
+        new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
     private string _osDescription = "Windows";
     public string OsDescription { get => _osDescription; private set => SetProperty(ref _osDescription, value); }
