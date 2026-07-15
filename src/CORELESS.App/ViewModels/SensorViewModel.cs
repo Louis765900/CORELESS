@@ -9,10 +9,19 @@ namespace Coreless.ViewModels;
 public sealed class SensorViewModel : ObservableObject
 {
     private readonly ISensor _sensor;
+    private readonly ISensor? _pairedControl;
 
-    public SensorViewModel(ISensor sensor)
+    /// <param name="pairedControl">
+    /// The sibling %-control sensor sharing this fan's name, if any. LibreHardwareMonitor
+    /// exposes a Fan (RPM) sensor and a Control (%) sensor separately; some GPUs report a
+    /// non-zero fan-speed request via Control while the RPM tachometer itself never reads
+    /// back (driver/hardware limitation) — that case is shown as "N/A" rather than a
+    /// misleading "0 RPM".
+    /// </param>
+    public SensorViewModel(ISensor sensor, ISensor? pairedControl = null)
     {
         _sensor = sensor;
+        _pairedControl = pairedControl;
         Name = sensor.Name;
         Unit = SensorFormat.Unit(sensor.SensorType);
         Type = sensor.SensorType;
@@ -41,13 +50,30 @@ public sealed class SensorViewModel : ObservableObject
 
     public void Refresh()
     {
-        Value = SensorFormat.Format(Type, _sensor.Value);
-        Min = SensorFormat.Format(Type, _sensor.Min);
-        Max = SensorFormat.Format(Type, _sensor.Max);
+        if (Type == SensorType.Fan && IsUnreadDespiteControlDemand())
+        {
+            Value = "N/A";
+            Min = "N/A";
+            Max = "N/A";
+        }
+        else
+        {
+            Value = SensorFormat.Format(Type, _sensor.Value);
+            Min = SensorFormat.Format(Type, _sensor.Min);
+            Max = SensorFormat.Format(Type, _sensor.Max);
+        }
         // highlight hot temperatures in red
         bool hot = Type == SensorType.Temperature && _sensor.Value is float t && !float.IsNaN(t) && t >= 60f;
         ValueBrush = hot ? HotBrush : NormalBrush;
         OnPropertyChanged(nameof(Raw));
+    }
+
+    private bool IsUnreadDespiteControlDemand()
+    {
+        if (_pairedControl is null) return false;
+        bool fanReadsZero = _sensor.Value is float fv && !float.IsNaN(fv) && fv == 0f;
+        bool controlDemandsSpin = _pairedControl.Value is float cv && !float.IsNaN(cv) && cv > 3f;
+        return fanReadsZero && controlDemandsSpin;
     }
 
     private static Brush Freeze(Color c)

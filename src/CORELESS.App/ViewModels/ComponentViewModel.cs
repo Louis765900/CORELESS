@@ -23,9 +23,16 @@ public sealed class ComponentViewModel : ObservableObject
         BadgeBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorHex));
         BadgeBrush.Freeze();
 
-        // Build sensor view models once; values refresh in place each tick.
+        // Build sensor view models once; values refresh in place each tick. Fan (RPM) sensors
+        // are paired with their sibling Control (%) sensor of the same name so SensorViewModel
+        // can tell "genuinely at 0 RPM" apart from "driver never reports the tachometer".
         foreach (ISensor s in hw.Sensors.OrderBy(s => s.SensorType).ThenBy(s => s.Name))
-            _all.Add(new SensorViewModel(s));
+        {
+            ISensor? pairedControl = s.SensorType == SensorType.Fan
+                ? hw.Sensors.FirstOrDefault(o => o.SensorType == SensorType.Control && o.Name == s.Name)
+                : null;
+            _all.Add(new SensorViewModel(s, pairedControl));
+        }
 
         Groups = new ObservableCollection<SensorGroupViewModel>(
             _all.GroupBy(s => SensorFormat.GroupLabel(s.Type))

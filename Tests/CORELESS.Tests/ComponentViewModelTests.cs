@@ -94,6 +94,20 @@ public class ComponentViewModelTests
     }
 
     [Fact]
+    public void GpuFanStuckAtZero_WithControlDemandingSpin_ShowsNotAvailable()
+    {
+        var hw = new FakeHardware("GTX 1650", HardwareType.GpuNvidia,
+            new FakeSensor("GPU Fan", SensorType.Fan, 0f),
+            new FakeSensor("GPU Fan", SensorType.Control, 34f));
+
+        var vm = new ComponentViewModel(hw);
+        vm.Refresh();
+
+        SensorViewModel fanSensor = vm.Groups.SelectMany(g => g.Sensors).Single(s => s.Type == SensorType.Fan);
+        Assert.Equal("N/A", fanSensor.Value);
+    }
+
+    [Fact]
     public void SubHardwareSensors_AreAggregatedIntoSensorCount()
     {
         var child = new FakeHardware("GPU core", HardwareType.GpuNvidia,
