@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Media;
 using Coreless.Models;
 using Coreless.Mvvm;
+using Coreless.Services;
 using LibreHardwareMonitor.Hardware;
 
 namespace Coreless.ViewModels;
@@ -38,7 +39,22 @@ public sealed class ComponentViewModel : ObservableObject
         ClockHeadline = Pick(SensorType.Clock, "Core", "GPU Core");
 
         SensorCount = _all.Count + SubComponents.Sum(c => c.SensorCount);
+
+        _isNetwork = hw.HardwareType == HardwareType.Network;
+        _isVirtualNetworkName = _isNetwork && NetworkInterfaceFilter.IsVirtualByName(Name);
     }
+
+    private readonly bool _isNetwork;
+    private readonly bool _isVirtualNetworkName;
+    private bool _everActive;
+
+    /// <summary>
+    /// True for network adapters that are either recognized virtual/filter-driver
+    /// entries by name, or have shown no non-zero sensor value across the whole
+    /// session so far — the noise flagged in the functional audit (Npcap/QoS/WFP
+    /// duplicates, kernel debugger adapters, all stuck at 0,0).
+    /// </summary>
+    public bool IsSuspectedInactiveNetwork => _isNetwork && (_isVirtualNetworkName || !_everActive);
 
     public string Name { get; }
     public string Category { get; }
@@ -72,6 +88,12 @@ public sealed class ComponentViewModel : ObservableObject
         PushSpark(TempSpark, TempHeadline?.Raw);
         PushSpark(LoadSpark, LoadHeadline?.Raw);
         PushSpark(ClockSpark, ClockHeadline?.Raw);
+
+        if (_isNetwork && !_everActive && _all.Any(s => s.Raw is float v && !float.IsNaN(v) && v != 0f))
+        {
+            _everActive = true;
+            OnPropertyChanged(nameof(IsSuspectedInactiveNetwork));
+        }
     }
 
     private static void PushSpark(ObservableCollection<double> spark, float? value)

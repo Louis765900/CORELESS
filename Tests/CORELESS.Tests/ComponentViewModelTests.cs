@@ -45,6 +45,55 @@ public class ComponentViewModelTests
     }
 
     [Fact]
+    public void NetworkAdapter_WithVirtualDriverName_IsSuspectedInactive()
+    {
+        var hw = new FakeHardware("Ethernet-Npcap Packet Driver", HardwareType.Network,
+            new FakeSensor("Débit", SensorType.Throughput, 0f));
+
+        var vm = new ComponentViewModel(hw);
+
+        Assert.True(vm.IsSuspectedInactiveNetwork);
+    }
+
+    [Fact]
+    public void NetworkAdapter_NeverNonZero_IsSuspectedInactive()
+    {
+        var sensor = new FakeSensor("Débit", SensorType.Throughput, 0f);
+        var hw = new FakeHardware("Realtek PCIe GbE", HardwareType.Network, sensor);
+        var vm = new ComponentViewModel(hw);
+
+        vm.Refresh();
+        vm.Refresh();
+
+        Assert.True(vm.IsSuspectedInactiveNetwork);
+    }
+
+    [Fact]
+    public void NetworkAdapter_SeenNonZeroOnce_IsNoLongerSuspectedInactive()
+    {
+        var sensor = new FakeSensor("Débit", SensorType.Throughput, 0f);
+        var hw = new FakeHardware("Realtek PCIe GbE", HardwareType.Network, sensor);
+        var vm = new ComponentViewModel(hw);
+
+        vm.Refresh();
+        sensor.Value = 5_000_000f;
+        vm.Refresh();
+
+        Assert.False(vm.IsSuspectedInactiveNetwork);
+    }
+
+    [Fact]
+    public void NonNetworkComponent_IsNeverSuspectedInactive()
+    {
+        var hw = new FakeHardware("Intel Core i7", HardwareType.Cpu,
+            new FakeSensor("Package", SensorType.Temperature, 0f));
+
+        var vm = new ComponentViewModel(hw);
+
+        Assert.False(vm.IsSuspectedInactiveNetwork);
+    }
+
+    [Fact]
     public void SubHardwareSensors_AreAggregatedIntoSensorCount()
     {
         var child = new FakeHardware("GPU core", HardwareType.GpuNvidia,

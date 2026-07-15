@@ -20,6 +20,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         _service = new HardwareMonitorService();
         Components = new ObservableCollection<ComponentViewModel>();
+        VisibleComponents = new ObservableCollection<ComponentViewModel>();
         QuickStats = new ObservableCollection<InfoItem>();
 
         ShowOverviewCommand = new RelayCommand(() => GoTo(Section.Overview));
@@ -28,6 +29,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         SelectComponentCommand = new RelayCommand(o => { if (o is ComponentViewModel c) SelectedComponent = c; });
         ExportTxtCommand = new RelayCommand(ExportTxt);
         ExportPdfCommand = new RelayCommand(ExportPdf);
+        ToggleInactiveNetworkCommand = new RelayCommand(() => ShowInactiveNetworkInterfaces = !ShowInactiveNetworkInterfaces);
 
         Initialize();
 
@@ -43,6 +45,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public enum Section { Overview, Component, Benchmarks }
 
     public ObservableCollection<ComponentViewModel> Components { get; }
+
+    /// <summary>Components minus interfaces hidden by <see cref="ShowInactiveNetworkInterfaces"/> — what the UI lists.</summary>
+    public ObservableCollection<ComponentViewModel> VisibleComponents { get; }
     public ObservableCollection<InfoItem> QuickStats { get; }
     public BenchmarkViewModel Benchmark { get; private set; } = null!;
 
@@ -52,6 +57,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public ICommand SelectComponentCommand { get; }
     public ICommand ExportTxtCommand { get; }
     public ICommand ExportPdfCommand { get; }
+    public ICommand ToggleInactiveNetworkCommand { get; }
+
+    private bool _showInactiveNetworkInterfaces;
+    public bool ShowInactiveNetworkInterfaces
+    {
+        get => _showInactiveNetworkInterfaces;
+        set { if (SetProperty(ref _showInactiveNetworkInterfaces, value)) RebuildVisibleComponents(); }
+    }
 
     private Section _section = Section.Overview;
     public Section CurrentSection
@@ -120,7 +133,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                      .OrderBy(h => CategoryOrder(h.HardwareType))
                      .ThenBy(h => h.Name))
         {
-            Components.Add(new ComponentViewModel(hw));
+            var c = new ComponentViewModel(hw);
+            c.PropertyChanged += Component_PropertyChanged;
+            Components.Add(c);
         }
 
         // second update so first displayed values aren't blank
@@ -128,9 +143,26 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         foreach (ComponentViewModel c in Components) c.Refresh();
 
         BuildSystemSummary();
+        RebuildVisibleComponents();
         Status = Components.Count > 0
             ? $"{Components.Count} composants détectés"
             : "Aucun capteur — vérifiez les droits administrateur";
+    }
+
+    private void Component_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ComponentViewModel.IsSuspectedInactiveNetwork))
+            RebuildVisibleComponents();
+    }
+
+    private void RebuildVisibleComponents()
+    {
+        var visible = ShowInactiveNetworkInterfaces
+            ? Components
+            : Components.Where(c => !c.IsSuspectedInactiveNetwork);
+
+        VisibleComponents.Clear();
+        foreach (ComponentViewModel c in visible) VisibleComponents.Add(c);
     }
 
     private void Tick()
@@ -227,7 +259,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         try
         {
-            string report = ReportBuilder.BuildText(MachineName, OsDescription, QuickStats, Components);
+            string report = ReportBuilder.BuildText(MachineName, OsDescription, QuickStats, VisibleComponents);
             File.WriteAllText(dlg.FileName, report, System.Text.Encoding.UTF8);
             Status = "Rapport TXT exporté";
         }
@@ -252,7 +284,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         try
         {
             PdfReportBuilder.Build(dlg.FileName, MachineName, OsDescription, QuickStats,
-                Components, Benchmark.Results);
+                VisibleComponents, Benchmark.Results);
             Status = "Rapport PDF exporté";
             try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(dlg.FileName) { UseShellExecute = true }); }
             catch { /* opening is best-effort */ }
