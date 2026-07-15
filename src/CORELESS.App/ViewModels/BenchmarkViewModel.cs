@@ -27,7 +27,7 @@ public sealed class BenchmarkViewModel : ObservableObject
         _cpuAccessor = cpuAccessor;
         _gpuAccessor = gpuAccessor;
 
-        RunCpuCommand = new RelayCommand(() => _ = RunOne(CpuBenchmark.RunAsync, "Processeur"), () => CanRun);
+        RunCpuCommand = new RelayCommand(() => _ = RunOne(CpuBenchmark.RunAsync, "CPU débit"), () => CanRun);
         RunMemoryCommand = new RelayCommand(() => _ = RunOne(MemoryBenchmark.RunAsync, "Mémoire"), () => CanRun);
         RunDiskCommand = new RelayCommand(() => _ = RunOne(DiskBenchmark.RunAsync, "Stockage"), () => CanRun);
         RunRenderCommand = new RelayCommand(() => _ = RunOne(RenderBenchmark.RunAsync, "Rendu 3D"), () => CanRun);

@@ -34,7 +34,7 @@ public static class CpuBenchmark
 
         return new BenchmarkOutcome
         {
-            Title = "Processeur",
+            Title = "CPU débit (ALU/FPU)",
             ScoreLabel = "Score multi-cœur",
             ScoreValue = Math.Round(multiScore).ToString("N0"),
             ScoreUnit = "blocs/s",
