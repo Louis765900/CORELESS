@@ -28,8 +28,6 @@ public sealed class BenchmarkViewModel : ObservableObject
         _gpuAccessor = gpuAccessor;
 
         RunCpuCommand = new RelayCommand(() => _ = RunOne(CpuBenchmark.RunAsync, "CPU débit"), () => CanRun);
-        RunMemoryCommand = new RelayCommand(() => _ = RunOne(MemoryBenchmark.RunAsync, "Mémoire"), () => CanRun);
-        RunDiskCommand = new RelayCommand(() => _ = RunOne(DiskBenchmark.RunAsync, "Stockage"), () => CanRun);
         RunRenderCommand = new RelayCommand(() => _ = RunOne(RenderBenchmark.RunAsync, "Rendu 3D"), () => CanRun);
         RunPiCommand = new RelayCommand(() => _ = RunOne(PiBenchmark.RunAsync, "Calcul Pi"), () => CanRun);
         RunCompressionCommand = new RelayCommand(() => _ = RunOne(CompressionBenchmark.RunAsync, "Compression"), () => CanRun);
@@ -56,8 +54,6 @@ public sealed class BenchmarkViewModel : ObservableObject
     public ObservableCollection<double> LoadHistory { get; } = new();
 
     public ICommand RunCpuCommand { get; }
-    public ICommand RunMemoryCommand { get; }
-    public ICommand RunDiskCommand { get; }
     public ICommand RunRenderCommand { get; }
     public ICommand RunPiCommand { get; }
     public ICommand RunCompressionCommand { get; }
