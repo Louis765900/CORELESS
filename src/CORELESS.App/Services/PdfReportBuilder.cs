@@ -15,6 +15,8 @@ public static class PdfReportBuilder
     private const string Line = "#E0E4EA";
     private const string Dark = "#0B0E14";
     private const string Accent = "#35C9F0";
+    private const string Red = "#E4002B";
+    private const string Track = "#E4E7EC";
 
     public static void Build(string path, string machine, string os, IEnumerable<InfoItem> summary,
                              IEnumerable<ComponentViewModel> components, IEnumerable<BenchmarkOutcome> benchmarks)
@@ -35,7 +37,10 @@ public static class PdfReportBuilder
                 page.Content().PaddingVertical(12).Column(col =>
                 {
                     col.Spacing(12);
+                    BenchmarkOutcome? index = benches.FirstOrDefault(b => b.Category == BenchCategory.Composite);
+                    if (index is not null) IndexHero(col, index);
                     Summary(col, stats);
+                    VisualOverview(col, comps);
                     if (benches.Count > 0) Benchmarks(col, benches);
                     SectionTitle(col, "Composants & capteurs");
                     foreach (ComponentViewModel c in comps) Component(col, c);
@@ -74,6 +79,69 @@ public static class PdfReportBuilder
     private static void SectionTitle(ColumnDescriptor col, string text)
         => col.Item().PaddingTop(4).Text(text).FontSize(13).Bold().FontColor(Ink);
 
+    private static void IndexHero(ColumnDescriptor col, BenchmarkOutcome index)
+    {
+        col.Item().Background(Dark).Padding(18).Row(row =>
+        {
+            row.RelativeItem().Column(cc =>
+            {
+                cc.Item().Text("INDICE CORELESS").FontSize(11).Bold().FontColor(Muted);
+                cc.Item().Text("Score global pondéré, tous modules exécutés").FontSize(8).FontColor(Muted);
+            });
+            row.ConstantItem(140).AlignRight().Column(cc =>
+            {
+                cc.Item().AlignRight().Text(index.ScoreValue).FontSize(30).Bold().FontColor(Accent);
+                cc.Item().AlignRight().Text(index.ScoreUnit).FontSize(9).FontColor(Muted);
+            });
+        });
+    }
+
+    /// <summary>Simple proportional two-segment bar (filled + track) — QuestPDF has no chart primitive,
+    /// so gauges are faked with relative-width containers rather than a real drawing surface.</summary>
+    private static void Bar(IContainer container, float fraction, string color)
+    {
+        fraction = Math.Clamp(fraction, 0f, 1f);
+        container.Height(7).Row(row =>
+        {
+            row.RelativeItem(fraction).Background(color);
+            row.RelativeItem(1 - fraction).Background(Track);
+        });
+    }
+
+    private static void VisualOverview(ColumnDescriptor col, List<ComponentViewModel> comps)
+    {
+        var withGauges = comps.Where(c => c.HasTemp || c.HasLoad).ToList();
+        if (withGauges.Count == 0) return;
+
+        SectionTitle(col, "Aperçu visuel");
+        foreach (ComponentViewModel c in withGauges)
+        {
+            string hex = Hex6(c.ColorHex);
+            col.Item().PaddingTop(3).Row(row =>
+            {
+                row.ConstantItem(120).Text(c.Name).FontSize(8.5f).SemiBold().FontColor(Ink);
+
+                row.ConstantItem(140).PaddingRight(10).Column(cc =>
+                {
+                    if (c.HasTemp && c.TempHeadline?.Raw is float t && !float.IsNaN(t))
+                    {
+                        cc.Item().Text($"{t:0.0} °C").FontSize(7).FontColor(Muted);
+                        cc.Item().Element(e => Bar(e, t / 100f, t >= 80 ? Red : hex));
+                    }
+                });
+
+                row.RelativeItem().Column(cc =>
+                {
+                    if (c.HasLoad && c.LoadHeadline?.Raw is float l && !float.IsNaN(l))
+                    {
+                        cc.Item().Text($"{l:0} % charge").FontSize(7).FontColor(Muted);
+                        cc.Item().Element(e => Bar(e, l / 100f, Accent));
+                    }
+                });
+            });
+        }
+    }
+
     private static void Summary(ColumnDescriptor col, List<InfoItem> summary)
     {
         SectionTitle(col, "Résumé système");
@@ -90,8 +158,11 @@ public static class PdfReportBuilder
 
     private static void Benchmarks(ColumnDescriptor col, List<BenchmarkOutcome> benches)
     {
+        List<BenchmarkOutcome> individual = benches.Where(b => b.Category != BenchCategory.Composite).ToList();
+        if (individual.Count == 0) return;
+
         SectionTitle(col, "Benchmarks");
-        foreach (BenchmarkOutcome b in benches)
+        foreach (BenchmarkOutcome b in individual)
         {
             col.Item().PaddingTop(2).Row(row =>
             {
